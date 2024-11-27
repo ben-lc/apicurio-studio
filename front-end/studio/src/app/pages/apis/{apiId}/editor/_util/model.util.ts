@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import {AaiSchema, Library, Node, OasSchema, ReferenceUtil} from "@apicurio/data-models";
+import {AaiSchema, Library, Node, Oas30Schema, OasSchema, ReferenceUtil} from "@apicurio/data-models";
 import {ApiEditorUser} from "../../../../../models/editor-user.model";
 
 export class ModelUtils {
@@ -116,15 +116,7 @@ export class ModelUtils {
      */
     public static generateExampleFromSchema(schema: OasSchema | AaiSchema): any {
         let generator: ExampleGenerator = new ExampleGenerator();
-        let example = generator.generate(schema);
-        if (schema.allOf) {
-            schema.allOf.forEach(inherited => {
-                if (inherited.$ref) {
-                    Object.assign(example, generator.generate(inherited));
-                }
-            });
-        }
-        return example;
+        return generator.generate(schema);
     }
 
 }
@@ -134,25 +126,51 @@ export class ExampleGenerator {
 
     private refStack: any[] = [];
 
-    public generate(schema: OasSchema | AaiSchema): any {
+    public generate(schema: OasSchema | AaiSchema): any {
         console.info("[ExampleGenerator] Generating example from schema of type: ", schema.type);
-        let object: any;
-        if (schema.$ref) {
-            object = this.generateFromRef(schema);
-        } else if (this.isEnum(schema)) {
-            console.info("[ExampleGenerator] Schema is enum.");
-            object = this.generateEnumValue(schema);
-        } else if (this.isSimpleType(schema.type)) {
-            console.info("[ExampleGenerator] Schema is a simple type.");
-            object = this.generateSimpleType(schema);
-        } else if (schema.type === "object" || !schema.type) {
-            console.info("[ExampleGenerator] Schema is type 'object'");
-            object = this.generateObject(schema);
-        } else if (schema.type === "array") {
-            console.info("[ExampleGenerator] Schema is type 'array'");
-            object = this.generateArray(schema);
+        
+        if (schema.allOf) {
+            console.info("[ExampleGenerator] Schema has allOf inheritance.");
+            let object= {};
+            schema.allOf.forEach(inherited => {
+                Object.assign(object, this.generate(inherited));
+            });
+            return object;
         }
-        return object;
+        if (schema instanceof Oas30Schema || schema instanceof AaiSchema) {
+            if (schema.oneOf?.length > 0) {
+                console.info("[ExampleGenerator] Schema has oneOf inheritance.");
+                return this.generate(schema.oneOf[this.getRandomInt(schema.oneOf.length)]);
+            }
+            if (schema.anyOf?.length > 0) {
+                console.info("[ExampleGenerator] Schema has anyOf inheritance.");
+                return this.generate(schema.anyOf[this.getRandomInt(schema.anyOf.length)]);
+            }
+        }
+        if (schema.$ref) {
+            console.info("[ExampleGenerator] Schema is a reference.");
+            return this.generateFromRef(schema);
+        }
+        if (this.isEnum(schema)) {
+            console.info("[ExampleGenerator] Schema is enum.");
+            return this.generateEnumValue(schema);
+        }
+        if (this.isSimpleType(schema.type)) {
+            console.info("[ExampleGenerator] Schema is a simple type.");
+            return this.generateSimpleType(schema);
+        }
+        if (schema.type === "object" || !schema.type) {
+            console.info("[ExampleGenerator] Schema is type 'object'");
+            return this.generateObject(schema);
+        }
+        if (schema.type === "array") {
+            console.info("[ExampleGenerator] Schema is type 'array'");
+            return this.generateArray(schema);
+        }
+    }
+    
+    private getRandomInt(max: number): number {
+        return Math.floor(Math.random() * max);
     }
 
     private generateFromRef(schema: OasSchema | AaiSchema): any {
@@ -215,7 +233,7 @@ export class ExampleGenerator {
 
     private generateEnumValue(schema: OasSchema | AaiSchema): any {
         if (schema.enum_.length > 0) {
-            return schema.enum_[Math.floor(Math.random()*schema.enum_.length)];
+            return schema.enum_[this.getRandomInt(schema.enum_.length)];
         }
         return "??";
     }
