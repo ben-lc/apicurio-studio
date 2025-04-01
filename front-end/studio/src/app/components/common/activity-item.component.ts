@@ -320,7 +320,9 @@ export class ActivityItemComponent {
             case "ReplaceResponseDefinitionCommand":
             case "ReplaceResponseDefinitionCommand_20":
             case "ReplaceResponseDefinitionCommand_30":
-            case "ReplaceDocumentCommand":
+            case "ReplaceMessageCommand":
+            case "ReplaceMessageTraitDefinitionCommand":
+            case "ReplaceOperationTraitDefinitionCommand":
             case "ReplaceCorrelationIdDefinitionCommand":
                 rval = "code";
                 break;
@@ -681,6 +683,15 @@ export class ActivityItemComponent {
             case "NewCorrelationIdDefinitionCommand":
                 rval = "added a new Correlation Id definition named '" + this.command()["_newName"] + "'.";
                 break;
+            case "NewMessageDefinitionCommand":
+                rval = "added a new Message Definition named '" + this.command()["_newName"] + "'.";
+                break;
+            case "NewMessageTraitDefinitionCommand":
+                rval = "added a new Message Trait Definition named '" + this.command()["_newName"] + "'.";
+                break;
+            case "NewOperationTraitDefinitionCommand":
+                rval = "added a new Operation Trait Definition named '" + this.command()["_newName"] + "'.";
+                break;
             case "NewRequestBodyCommand":
             case "NewRequestBodyCommand_20":
             case "NewRequestBodyCommand_30":
@@ -756,6 +767,15 @@ export class ActivityItemComponent {
                 break;
             case "ReplaceSecurityRequirementCommand":
                 rval = `modified the details of a Security Requirement at location ${this.command()["_parentPath"]}.`;
+                break;
+            case "ReplaceMessageCommand":
+                rval = "fully replaced the source for Message '" + this.command()["_messageName"] + "'.";
+                break;
+            case "ReplaceMessageTraitDefinitionCommand":
+                rval = "fully replaced the source for Message Trait '" + this.command()["_messageTraitName"] + "'.";
+                break;
+            case "ReplaceOperationTraitDefinitionCommand":
+                rval = "fully replaced the source for Operation Trait '" + this.command()["_operationTraitName"] + "'.";
                 break;
             case "RenamePathItemCommand":
                 rval = `renamed a path from '${this.command()['_oldPath']}' to '${this.command()['_newPath']}'.`;
