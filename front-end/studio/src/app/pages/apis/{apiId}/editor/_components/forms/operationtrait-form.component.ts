@@ -33,7 +33,9 @@ import {
     ReferenceUtil,
     SimplifiedType,
     TraverserDirection,
-    VisitorUtil
+    VisitorUtil,
+    Aai20OperationTrait,
+    Aai20OperationTraitDefinition
 } from "@apicurio/data-models";
 
 import {SourceFormComponent} from "./source-form.base";
@@ -82,10 +84,13 @@ export class OperationTraitFormComponent extends SourceFormComponent<AaiOperatio
     }
 
     protected createEmptyNodeForSource(): AaiOperationTraitDefinition {
-        throw new Error("Method not implemented.");
+        const operationTrait = new Aai20OperationTraitDefinition(this._operationTrait.parent(), this._operationTrait.getName());
+        operationTrait._ownerDocument = this._operationTrait.ownerDocument();
+        return operationTrait;
     }
     protected createReplaceNodeCommand(node: AaiOperationTraitDefinition): ICommand {
-        throw new Error("Method not implemented.");
+        return CommandFactory.createReplaceOperationTraitDefinitionCommand(this._operationTrait, node);
+
     }
 
     public enableSourceMode(): void {

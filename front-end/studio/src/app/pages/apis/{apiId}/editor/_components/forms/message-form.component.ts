@@ -33,7 +33,7 @@ import {
     ReferenceUtil,
     SimplifiedType,
     TraverserDirection,
-    VisitorUtil, AaiOperation
+    VisitorUtil, AaiOperation, Aai20Message
 } from "@apicurio/data-models";
 
 import {SourceFormComponent} from "./source-form.base";
@@ -90,11 +90,13 @@ export class MessageFormComponent extends SourceFormComponent<AaiMessage> {
     }
 
     protected createEmptyNodeForSource(): AaiMessage {
-        throw new Error("Method not implemented.");
+        const message = new Aai20Message(this._message.parent(), this._message.getName());
+        message._ownerDocument = this._message.ownerDocument();
+        return message;
     }
 
     protected createReplaceNodeCommand(node: AaiMessage): ICommand {
-        throw new Error("Method not implemented.");
+        return CommandFactory.createReplaceMessageCommand(this._message, node);
     }
 
     public schemaFormatOptions() {

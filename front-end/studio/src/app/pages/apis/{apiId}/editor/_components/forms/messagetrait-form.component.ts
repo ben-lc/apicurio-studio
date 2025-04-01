@@ -33,7 +33,7 @@ import {
     ReferenceUtil,
     SimplifiedType,
     TraverserDirection,
-    VisitorUtil
+    Aai20MessageTraitDefinition
 } from "@apicurio/data-models";
 
 import {SourceFormComponent} from "./source-form.base";
@@ -83,10 +83,12 @@ export class MessageTraitFormComponent extends SourceFormComponent<AaiMessageTra
     }
 
     protected createEmptyNodeForSource(): AaiMessageTraitDefinition {
-        throw new Error("Method not implemented.");
+        const message = new Aai20MessageTraitDefinition(this._messageTrait.parent(), this._messageTrait.getName());
+        message._ownerDocument = this._messageTrait.ownerDocument();
+        return message;
     }
     protected createReplaceNodeCommand(node: AaiMessageTraitDefinition): ICommand {
-        throw new Error("Method not implemented.");
+        return CommandFactory.createReplaceMessageTraitDefinitionCommand(this._messageTrait, node);
     }
 
     public enableSourceMode(): void {
